@@ -1,0 +1,34 @@
+version: "3.8"
+services:
+  db:
+    image: mysql:5.6
+    container_name: standalone-mysql
+    environment:
+      - MYSQL_ROOT_PASSWORD=rootpassword
+      - MYSQL_DATABASE=db-school
+      - MYSQL_USER=leonardo
+      - MYSQL_PASSOWRD=leonardo
+    ports:
+      - 3306:3306
+    networks:
+      - spring-cloud-network
+    healthcheck:
+      test: [ "CMD", "mysqladmin" ,"ping", "-h", "localhost" ]
+      timeout: 20s
+      retries: 10
+  web:
+    container_name: assessment
+    build:
+      dockerfile: Dockerfile
+    image: assessment:latest
+    depends_on:
+      db:
+        condition: service_healthy
+    ports:
+      - 8080:8080
+    networks:
+      - spring-cloud-network
+networks:
+  spring-cloud-network:
+    driver: bridge
+
